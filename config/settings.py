@@ -5,12 +5,19 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-votre-clé-secrète-ici"
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-votre-clé-secrète-ici')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+# Railway fournit automatiquement l'URL de l'app
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '.railway.app', 
+    '.up.railway.app',
+    '.onrender.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -23,7 +30,8 @@ INSTALLED_APPS = [
     # Third party apps
     "rest_framework",
     "corsheaders",
-    "django_filters",  # Ajouté pour les filtres
+    "django_filters",
+    "whitenoise.runserver_nostatic",  # Pour WhiteNoise
     # Local apps
     "products",
     "orders",
@@ -32,6 +40,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Pour les fichiers statiques
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -61,15 +70,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Database - Configuration PostgreSQL
+# Database - Configuration PostgreSQL pour Railway
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "kaydieund_db",
-        "USER": "kaydieund_user",
-        "PASSWORD": "kaydieund123",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.environ.get('PGDATABASE', 'kaydieund_db'),
+        "USER": os.environ.get('PGUSER', 'kaydieund_user'),
+        "PASSWORD": os.environ.get('PGPASSWORD', 'kaydieund123'),
+        "HOST": os.environ.get('PGHOST', 'localhost'),
+        "PORT": os.environ.get('PGPORT', '5432'),
     }
 }
 
@@ -96,8 +105,11 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Media files
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -108,6 +120,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://kay-dieund.vercel.app",  # Ton frontend sur Vercel
 ]
 
 # REST Framework settings
