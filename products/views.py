@@ -23,6 +23,29 @@ class CategoryList(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+def run_migrations_view(request):
+    """
+    Vue temporaire pour exécuter les migrations.
+    À APPELER EN PREMIER.
+    """
+    try:
+        from django.core.management import call_command
+        call_command('migrate')
+        return HttpResponse("""
+            <h1 style='color: green;'>✅ Migrations exécutées avec succès !</h1>
+            <p>Les tables ont été créées.</p>
+            <p>Vous pouvez maintenant :</p>
+            <ol>
+                <li><a href='/api/create-admin/'>Créer un superutilisateur</a></li>
+                <li><a href='/api/import-products/'>Importer les produits</a></li>
+            </ol>
+        """)
+    except Exception as e:
+        return HttpResponse(f"""
+            <h1 style='color: red;'>❌ Erreur</h1>
+            <p>{str(e)}</p>
+        """)
+
 # Vues temporaires pour l'initialisation sur Render
 def import_products_view(request):
     """
