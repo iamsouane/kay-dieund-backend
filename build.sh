@@ -8,5 +8,8 @@ pip install -r requirements.txt
 # Collecte des fichiers statiques
 python manage.py collectstatic --no-input
 
-# Note: Les migrations seront exécutées manuellement après déploiement
-# python manage.py migrate
+# ✅ Exécution automatique des migrations
+python manage.py migrate
+
+# Note: L'import des produits et la création du superutilisateur
+# devront être faits une seule fois via l'interface admin
